@@ -1,0 +1,790 @@
+/* am572x_idk_ca15.dts - TI AM572X IDK board with Cortex-A15 device tree source */
+
+/*
+modification history
+--------------------
+08aug17,d_l  add tps659037 node. (F9151)
+             add userUhsMode.
+11jul17,mpc  updated clock-frequency for generic timer (V7PRO-3424)
+28jun17,whu  add USB3 phy for AM572x (V7CON-502)
+13jun17,l_z  add qspi interface support (F9216)
+10jan17,ghl  add mailbox to support OpenAMP (F8373)
+31oct16,wch  added RTC alarm support (F6376)
+12sep16,mw1  add support AM572x USB2. (F7945)
+09aug16,ffu  fix VXBL fails to load the image with DRV_STORAGE_ATA_HOST
+09aug16,yjw  fix incorrect mmc pinmux setting
+07jul16,myt  add support for sata.
+06jul16,myt  add support for SD/eMMC card. (F7158)
+26may16,j_x  add USB support for AM572x. (F5938)
+04may16,m_w  update Clock & EDMA system. (F7158)
+01nov15,yjw  written (US64532)
+*/
+
+#include "prjParams.h"
+
+/dts-v1/;
+
+/include/ "am572x_clock.dtsi"
+
+/   {
+    model = "TI_AM572X_IDK - Cortex-A15 (ARMV7A)";
+    compatible = "ti,sitara-ctxa15";
+    #address-cells = <1>;
+    #size-cells = <1>;
+    interrupt-parent = <&intc>;
+
+    cpus
+        {
+        #size-cells = <0>;
+        #address-cells = <1>;
+
+        cpu@0
+            {
+            device_type = "cpu";
+            compatible = "arm,cortex-a15";
+            reg = <0>;
+            };
+
+        cpu@1
+            {
+            device_type = "cpu";
+            compatible = "arm,cortex-a15";
+            reg = <1>;
+            };
+        };
+
+    memory
+        {
+        device_type = "memory";
+        reg = <LOCAL_MEM_PHYS_ADRS LOCAL_MEM_SIZE>;
+        };
+
+    chosen
+        {
+        bootargs = "cpsw(0,0)host:vxWorks h=128.224.98.103 e=128.224.98.28 u=target pw=vxTarget f=0x0";
+        };
+
+    soc
+        {
+        compatible = "simple-bus";
+        device_type = "soc";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        reset_control = <0x4ae07d00>; /* PRM_RSTCTRL Register */
+        ranges;
+
+        scm@4a002000     /* control module */
+            {
+            /* this device provide pads config */
+            compatible = "ti,am5-pads";
+            reg = <0x4a002000 0x2000>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            pads@0
+                {
+                uart3_pads: uart0pads
+                    {
+                    pin-set = <
+                               0x1648 0x4000e   /* rxd */
+                               0x164c 0x4000e   /* txd */
+                               >;
+                    };
+
+                dmtimer2_pads: dmtimer2pads
+                    {
+                    pin-set = <
+                               0x0850 0x00021   /* irq */
+                               >;
+                    };
+
+                cpsw_pads: cpswpads
+                    {
+                    pin-set = <
+                               0x163c 0x00060000   /* MDIO MCLK */
+                               0x1640 0x00060000   /* MDIO D */
+                               0x1644 0x0004000d   /* RMII 50MHZ CLK */
+                               0x1650 0x00040100   /* RGMII0 TXC */
+                               0x1654 0x00040100   /* RGMII0 TXCTL */
+                               0x1658 0x00040100   /* RGMII0 TXD3 */
+                               0x165c 0x00040100   /* RGMII0 TXD2 */
+                               0x1660 0x00040100   /* RGMII0 TXD1 */
+                               0x1664 0x00040100   /* RGMII0 TXD0 */
+                               0x1668 0x00040100   /* RGMII0 RXC */
+                               0x166c 0x00040100   /* RGMII0 RXCTL */
+                               0x1670 0x00060100   /* RGMII0 RXD3 */
+                               0x1674 0x00060100   /* RGMII0 RXD2 */
+                               0x1678 0x00060100   /* RGMII0 RXD1 */
+                               0x167c 0x00060100   /* RGMII0 RXD0 */
+
+                               0x1598 0x00040103   /* RGMII1 TXC */
+                               0x159c 0x00040103   /* RGMII1 TXCTL */
+                               0x15a0 0x00040103   /* RGMII1 TXD3 */
+                               0x15a4 0x00040103   /* RGMII1 TXD2 */
+                               0x15a8 0x00040103   /* RGMII1 TXD1 */
+                               0x15ac 0x00040103   /* RGMII1 TXD0 */
+                               0x15b0 0x00040103   /* RGMII1 RXC */
+                               0x15b4 0x00040103   /* RGMII1 RXCTL */
+                               0x15b8 0x00060103   /* RGMII1 RXD3 */
+                               0x15bc 0x00060103   /* RGMII1 RXD2 */
+                               0x15c0 0x00060103   /* RGMII1 RXD1 */
+                               0x15c4 0x00060103   /* RGMII1 RXD0 */
+
+                               0x0b20 0x014f014e   /* MPU_IRQ_114 & MPU_IRQ_115 */
+                               0x0b24 0x01510150   /* MPU_IRQ_116 & MPU_IRQ_117 */
+                               >;
+                    };
+
+                pciess1_pads: pciess1pads
+                    {
+                    pin-set = <
+                               0x0a4c 0x000400e9   /* MPU_IRQ_40 */
+                               >;
+                    };
+
+                usb1_pads: usb1pads  
+                    {
+                    pin-set = <
+                               0x1680 0x000c0000   /* usb1_drvvbus */
+                               >;
+                    };
+		    
+                usb2_pads: usb2pads  
+                    {
+                    pin-set = <
+                               0x1684 0x000c0000   /* usb2_drvvbus */
+                               >;
+                    };
+		    
+                gpio3_pads: gpio3pads
+                    {
+                    pin-set = <
+                               0x153c 0x0000000e   /* gpio3_22 */
+                               0x1540 0x0000000e   /* gpio3_23 */
+                               >;
+                    };  
+                   
+                gpio6_pads: gpio6pads
+                    {
+                    pin-set = <
+                               0x176c 0x000e000e   /* gpio6_27 */
+                               0x1770 0x000c000e   /* gpio6_28 */
+                               >;
+                    };
+
+                ccio_pads: cciopads
+                    {
+                    pin-set = <
+                              0x14b4 0x000c000e    /* GPMC_CS0: gpio2_19, sensor input */
+                              0x14bc 0x0000000e    /* GPMC_CS3: gpio2_21, led: red/green */
+                              0x14c4 0x0000000e    /* GPMC_ADVN_ALE: gpio2_23, led: red/green */
+                              >;
+                    };
+                    
+                mmc1_pads: mmc1pads
+                    {
+                    pin-set = <
+                               0x1754 0x00070000   /* mmc1_clk  */
+                               0x1758 0x00070000   /* mmc1_cmd  */
+                               0x175c 0x00070000   /* mmc1_dat0 */
+                               0x1760 0x00070000   /* mmc1_dat1 */
+                               0x1764 0x00070000   /* mmc1_dat2 */
+                               0x1768 0x00070000   /* mmc1_dat3 */
+                              >; 
+                    }; 
+                
+                edma_pads: edmapads
+                    {
+                    pin-set = <
+                               0x0b54 0x016a0169  /* CTRL_CORE_MPU_IRQ_142_143:
+                                                   * map IRQ_CROSSBAR_361(EDMA_TPCC_IRQ_REGION0) to  MPU_IRQ_142 (ID174)
+                                                   * map IRQ_CROSSBAR_362(EDMA_TPCC_IRQ_REGION1) to  MPU_IRQ_143 (ID175)
+                                                   */
+                               0x0b58 0x016c016b  /* CTRL_CORE_MPU_IRQ_144_145:
+                                                   * map IRQ_CROSSBAR_363(EDMA_TPCC_IRQ_REGION2) to  MPU_IRQ_144 (ID176)
+                                                   * map IRQ_CROSSBAR_364(EDMA_TPCC_IRQ_REGION3) to  MPU_IRQ_145 (ID177)
+                                                   */
+                               0x0b5c 0x016e016d  /* CTRL_CORE_MPU_IRQ_146_147:
+                                                   * map IRQ_CROSSBAR_365(EDMA_TPCC_IRQ_REGION4) to  MPU_IRQ_146 (ID178)
+                                                   * map IRQ_CROSSBAR_366(EDMA_TPCC_IRQ_REGION5) to  MPU_IRQ_147 (ID179)
+                                                   */
+                               0x0b60 0x0170016f  /* CTRL_CORE_MPU_IRQ_148_149:
+                                                   * map IRQ_CROSSBAR_367(EDMA_TPCC_IRQ_REGION6) to  MPU_IRQ_148 (ID180)
+                                                   * map IRQ_CROSSBAR_368(EDMA_TPCC_IRQ_REGION7) to  MPU_IRQ_149 (ID181)
+                                                   */
+                               >;
+                    };
+                    
+                rtc_pads: rtcpads
+                    {
+                    pin-set = <
+                               0x0b64 0x000000d9  /* CTRL_CORE_MPU_IRQ_150:
+                                                   * map IRQ_CROSSBAR_217(RTC_SS_IRQ_ALARM) to  MPU_IRQ_150 (ID182)
+                                                   */
+                              >; 
+                    }; 
+					
+                qspi1_pads: qspi1pads
+                    {
+                    pin-set = <
+                               0x144c 0x00050001  /* spi1_cs2 */
+                               0x1450 0x00050001  /* spi1_cs3 */
+                               0x1474 0x00050001  /* qspi1_rtclk */
+                               0x1478 0x00050001  /* qspi1_d3 */
+                               0x147c 0x00050001  /* qspi1_d2 */
+                               0x1480 0x00050001  /* qspi1_d1 */
+                               0x1484 0x00050001  /* qspi1_d0 */
+                               0x1488 0x00050001  /* qspi1_sclk */
+                               0x14b8 0x00060001  /* qspi1_cs0 */
+                               0x14bc 0x00060001  /* qspi1_cs1 */
+                              >; 
+                    }; 
+                };
+            };
+
+        intc: interrupt-controller@48210000
+            {
+            compatible = "arm,gic";
+            #interrupt-cells = <3>;
+            interrupt-controller;
+            reg = <0x48211000 0x00001000>,  /* MPU Interrupt Controller Interfaces */
+                  <0x48212000 0x00001000>;  /* MPU Interrupt Distributor */
+            max-int-lvl = <480>;
+            };
+
+        edma@0x43300000
+            {
+            reg = <0x43300000 0x100000>,    /* EDMA_TPCC */
+                  <0x43400000 0x100000>,    /* EDMA_TC0  */
+                  <0x43500000 0x100000>;    /* EDMA_TC1  */
+            interrupt-parent = <&intc>;
+            interrupts = <174 0 4
+                          175 0 4
+                          176 0 4
+                          177 0 4
+                          178 0 4
+                          179 0 4
+                          180 0 4
+                          181 0 4>;
+            compatible      = "ti,edma3";
+            #dma-cells      = <1>;
+            dma-channels    = <64>;
+            ti,edma-regions = <4>;
+            ti,edma-slots   = <256>;
+            clocks          = <&edma_ttcp1>, <&edma_ttcp2>;
+            clock-names     = "edma_ttcp1","edma_ttcp2";
+            pinmux-0        = <&edma_pads>;
+            };
+
+        serial3: serial@48020000
+            {
+            compatible  = "ti,am5-uart";
+            reg         = <0x48020000 0x1000>;
+            interrupts  = <106 0 4>;
+            clocks      = <&uart3_gfclk_mux>;
+            clock-names = "uart3_gfclk_mux";
+            pinmux-0    = <&uart3_pads>;
+            };
+
+        generic-timer
+            {
+            compatible = "arm,armv7-gen-timer";
+            clock-frequency = <6147541>;
+            interrupts = <29 1 4        /* secure physical timer PPI */
+                          30 1 4        /* non-secure physical timer PPI */
+                          27 1 4        /* virtual timer PPI */
+                          26 1 4>;      /* hypervisor timer PPI */
+            };
+
+        rtc@48838000
+            {
+            compatible  = "ti,am3-rtc";
+            reg         = <0x48838000 0xa0>;
+            clocks      = <&rtcss_clk>;
+            clock-names = "rtcss_clk";
+            pinmux-0    = <&rtc_pads>;
+            interrupt-parent = <&intc>;
+            interrupts = <182 0 4>;
+            };
+
+        i2c1@48070000
+            {
+            compatible  = "ti,am38xx-i2c";
+            interrupts  = <88 0 4>;
+            reg         = <0x48070000 0xd6>;
+            clocks      = <&l4per_i2c1_mod>;
+            clock-names = "l4per_i2c1_mod";
+            clock-frequency = <400000>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            tps659037@0x38
+                {
+                compatible  = "ti,tps659037-compatible";
+                reg         = <0x58>;
+                data-scl-frequency = <400000>;
+                };
+
+            tpic2810@0x60
+                {
+                compatible  = "ti,tpic2810";
+                reg         = <0x60>;
+                data-scl-frequency = <400000>;
+                };
+            };
+
+        dmtimer2: dmtimer@48032000     /* DM Timer 2 */
+            {
+            compatible      = "ti,dmtimer";
+            #address-cells  = <1>;
+            #size-cells     = <1>;
+            reg             = <0x48032000 0x80>;
+            clocks          = <&timer2_gfclk_mux>;
+            clock-names     = "timer2_gfclk_mux";
+            interrupts      = <70 0 4>;
+            };
+
+        gpio1: gpio@4ae10000
+            {
+            compatible      = "ti,gpio";
+            gpio-controller;
+            #gpio-cells     = <4>;
+            #interrupt-cells= <1>;
+            bankid          = <0>;
+            reg             = <0x4ae10000 0x200>;
+            interrupts      = <61 0 4>;
+            clocks          = <&gpio1_dbclk>;
+            clock-names     = "gpio1_dbclk";
+            };
+
+        gpio2: gpio@48055000
+            {
+            compatible      = "ti,gpio";
+            gpio-controller;
+            #gpio-cells     = <4>;
+            #interrupt-cells= <1>;
+            bankid          = <1>;
+            reg             = <0x48055000 0x200>;
+            interrupts      = <62 0 4>;
+            clocks          = <&gpio2_dbclk>;
+            clock-names     = "gpio2_dbclk";
+            };
+
+        gpio3: gpio@48057000
+            {
+            compatible      = "ti,gpio";
+            gpio-controller;
+            #gpio-cells     = <4>;
+            #interrupt-cells= <1>;
+            bankid          = <2>;
+            reg             = <0x48057000 0x200>;
+            interrupts      = <63 0 4>;
+            pinmux-0        = <&gpio3_pads>;
+            clocks          = <&gpio3_dbclk>;
+            clock-names     = "gpio3_dbclk";
+            };
+
+        gpio4: gpio@48059000
+            {
+            compatible      = "ti,gpio";
+            gpio-controller;
+            #gpio-cells     = <4>;
+            #interrupt-cells= <1>;
+            bankid          = <3>;
+            reg             = <0x48059000 0x200>;
+            interrupts      = <64 0 4>;
+            clocks          = <&gpio4_dbclk>;
+            clock-names     = "gpio4_dbclk";
+            };
+            
+        gpio5: gpio@4805b000
+            {
+            compatible      = "ti,gpio";
+            gpio-controller;
+            #gpio-cells     = <4>;
+            #interrupt-cells= <1>;
+            bankid          = <4>;
+            reg             = <0x4805b000 0x200>;
+            interrupts      = <65 0 4>;
+            clocks          = <&gpio5_dbclk>;
+            clock-names     = "gpio5_dbclk";
+            };
+         
+        gpio6: gpio@4805d000
+            {
+            compatible      = "ti,gpio";
+            gpio-controller;
+            #gpio-cells     = <4>;
+            #interrupt-cells= <1>;
+            bankid          = <5>;
+            reg             = <0x4805d000 0x200>;
+            interrupts      = <66 0 4>;
+            pinmux-0        = <&gpio6_pads>;
+            clocks          = <&gpio6_dbclk>;
+            clock-names     = "gpio6_dbclk";
+            };
+                          
+        sdmmc1: sdmmc1@4809c000
+            {
+            compatible      = "ti,mmchs";
+            reg             = <0x4809c000 0x1000>;
+            interrupts      = <115 0 4>;
+            pinmux-0        = <&mmc1_pads>;
+            clocks          = <&mmc1_fclk_div>;
+            clock-names     = "mmc1_fclk_div";
+            dma-mode        = <0>;
+            dma-rxevt       = <61>;
+            dma-txevt       = <60>;
+            cd-pin          = <187>; 
+            wp-pin          = <&gpio6 28>;
+            debounce-time   = <7936>;
+            userUhsMode     = <0>;
+            };
+			
+        qspi: qspi@4b300000 {
+            compatible = "ti, am57xx-qspi";
+            reg = <0x4b300000 0x100>;
+            clocks          = <&qspi_gfclk_div>;
+            clock-names     = "qspi_gfclk_div";
+            pinmux-0        = <&qspi1_pads>;
+            #address-cells  = <1>;
+            #size-cells     = <0>;
+            m25p80@0 {
+                compatible = "spiflash";
+                #address-cells = <1>;
+                #size-cells = <1>;
+                spi-max-frequency = <76800000>;
+                reg = <0>;
+                data-lines = <4>;
+                mode = <0x100>;
+                };
+            };
+
+        pcie: pcie@20000000
+            {
+            compatible = "ti,am572x-pcie";
+            reg =   <0x51000000 0x2000>,        /* DBI */
+                    <0x51002000 0x2000>,        /* TI Configuration */
+                    <0x4A002000 0x2000>,        /* Control Core */
+                    <0x4AE07300 0x2000>,        /* L3INIT PRM */
+                    <0x20010000 0x80000>;       /* configuration */
+            #address-cells  = <3>;
+            #size-cells     = <2>;
+            device_type     = "pci";
+            bus-range       = <0 255>;
+            interrupts      = <40 0 4>;
+            reset-pin       = <&gpio3 23>;
+            reset-drv-pin   = <&gpio3 22>;
+            clocks          = <&sys_clkin1>,
+                              <&pcie_ss1_module>,
+                              <&pcie_clkvcoldo_div_ctrl>,
+                              <&optfclk_pciephy1_div_clk>,
+                              <&optfclk_pciephy1_clk>,
+                              <&optfclk_pciephy1_32khz>;
+            clock-names     = "sys_clkin1",
+                              "pcie_ss1_module",
+                              "pcie_clkvcoldo_div_ctrl",
+                              "optfclk_pciephy1_div_clk",
+                              "optfclk_pciephy1_clk",
+                              "optfclk_pciephy1_32khz";
+            pinmux-0        = <&pciess1_pads>;
+            window-addr     = <0x20000000>;
+
+            /*
+             * EEEEEEEEEE address properties encoded
+             * p          PCI address upper 32 bits
+             * PPPPPPPPPP PCI address lower 32 bits
+             * c          CPU address upper 32 bits
+             * CCCCCCCCCC CPU address lower 32 bits
+             * s          range size upper 32 bits
+             * SSSSSSSSSS range size lower 32 bits
+             *
+             *        EEEEEEEEE p PPPPPPPPPP CCCCCCCCCC s SSSSSSSSSS
+             */
+
+            ranges = <0x2000000 0 0x200A0000 0x200A0000 0 0x0FF50000
+                      0x1000000 0 0x00000000 0x20090000 0 0x00010000>;
+            num-lanes = <1>;
+            #interrupt-cells = <1>;
+            interrupt-map-mask = <0xfff800 0 0 7>;
+            interrupt-map = <0x0000 0 0 1 &pcie 0       /* INT A */
+                             0x0000 0 0 2 &pcie 1       /* INT B */
+                             0x0000 0 0 3 &pcie 2       /* INT C */
+                             0x0000 0 0 4 &pcie 3>;     /* INT D */
+            };
+
+        cpsw_switch_controller: ethernet@48484000       /* ethernet system */
+            {
+            compatible = "ti,cpsw-switch-controller";   /* switch controller device */
+            #address-cells = <1>;
+            #size-cells    = <1>;
+
+            reg = <0x48484000 0x2000>;     /* CPSW register space */
+            cpsw-port0-offset = <0x0108>;  /* offset - Ethernet Switch Port Control of port0 */
+            cpsw-cpdma-offset = <0x0800>;  /* offset - CPPI DMA Controller Module */
+            cpsw-hdp-offset   = <0x0a00>;  /* offset - HDP */
+            cpsw-stats-offset = <0x0900>;  /* offset - Ethernet Statistics */
+            cpsw-ale-offset   = <0x0d00>;  /* offset - Ethernet Address Lookup Engine */
+            cpsw-mdio-offset  = <0x1000>;  /* offset - Ethernet MDIO Controller */
+            cpsw-wr-offset    = <0x1200>;  /* offset - Ethernet Subsystem Wrapper for RMII/RGMII */
+
+            clocks            = <&gmac_rft_clk_mux>, <&gmac_gmii_ref_clk_div>;
+            clock-names       = "gmac_rft_clk_mux","gmac_gmii_ref_clk_div";
+            pinmux-0          = <&cpsw_pads>;       /* pinmux setting */
+
+            cpsw_port1: port@1             /* port device*/
+                {
+                #address-cells = <1>;
+                #size-cells    = <0>;
+                device_type    = "network";
+                compatible     = "ti,cpsw-port";
+
+                interrupts = <147 0 4>,    /* c0_rx_pend */
+                             <148 0 4>,    /* c0_tx_pend */
+                             <149 0 4>;    /* c0_misc_pend */
+
+                cpsw-port-index  = <1>;
+                cpsw-gmac-offset = <0xd80>;
+                cpsw-port-offset = <0x208>;
+
+                /*
+                 * The mac address will be fetched out from CTRL_MAC_ID with
+                 * higher priority than local-mac-address, each board has an
+                 * unique address for each mac port which was saved in
+                 * CTRL_MAC_ID, if this area was not supplied or it does not
+                 * exist, the mac address will be fetched out from
+                 * local-mac-address area. Please be careful to use
+                 * local-mac-address with more than one boards in same LAN, DO
+                 * NOT use the same local-mac-address value with each board for
+                 * it will lead ARP confict in same LAN.
+                 * When the CTRL_MAC_ID area and local-mac-address was supplied
+                 * simultaneously(here is an example), CTRL_MAC_ID win which
+                 * means mac address will be fetched out from CTRL_MAC_ID in
+                 * stead of local-mac-address.
+                 */
+
+                cpsw-mac-save-way = <1>;
+                reg = <0x4a002514 0x4>,    /* CTRL_MAC_ID0_LO */
+                      <0x4a002518 0x4>;    /* CTRL_MAC_ID0_HI */
+                local-mac-address = [ 00 40 47 E0 A8 32 ];
+
+                phy-handle = <&phy1>;      /* port1 use phy1 */
+                phy1: ethernet-phy@0       /* phy of port0 */
+                    {
+                    #address-cells = <1>;
+                    #size-cells    = <0>;
+                    compatible     = "micrel,phy";
+                    reg            = <0>;  /* phy address : 0 */
+                    rxc-skew-ps    = <900>;/* clock pad skew */
+                    txc-skew-ps    = <900>;/* clock pad skew */
+                    txen-skew-ps   = <420>;
+                    rxdv-skew-ps   = <420>;
+                    rxd0-skew-ps   = <420>;
+                    rxd1-skew-ps   = <420>;
+                    rxd2-skew-ps   = <420>;
+                    rxd3-skew-ps   = <420>;
+                    txd0-skew-ps   = <420>;
+                    txd1-skew-ps   = <420>;
+                    txd2-skew-ps   = <420>;
+                    txd3-skew-ps   = <420>;
+                    };
+                };
+
+            cpsw_port2: port@2             /* port device*/
+                {
+                #address-cells = <1>;
+                #size-cells    = <0>;
+                device_type    = "network";
+                compatible     = "ti,cpsw-port";
+
+                interrupts = <147 0 4>,    /* c0_rx_pend */
+                             <148 0 4>,    /* c0_tx_pend */
+                             <149 0 4>;    /* c0_misc_pend */
+
+                cpsw-port-index  = <2>;
+                cpsw-gmac-offset = <0xdc0>;
+                cpsw-port-offset = <0x308>;
+
+                /*
+                 * The mac address will be fetched out from CTRL_MAC_ID with
+                 * higher priority than local-mac-address, each board has an
+                 * unique address for each mac port which was saved in
+                 * CTRL_MAC_ID, if this area was not supplied or it does not
+                 * exist, the mac address will be fetched out from
+                 * local-mac-address area. Please be careful to use
+                 * local-mac-address with more than one boards in same LAN, DO
+                 * NOT use the same local-mac-address value with each board for
+                 * it will lead ARP confict in same LAN.
+                 * When the CTRL_MAC_ID area and local-mac-address was supplied
+                 * simultaneously(here is an example), CTRL_MAC_ID win which
+                 * means mac address will be fetched out from CTRL_MAC_ID in
+                 * stead of local-mac-address.
+                 */
+
+                cpsw-mac-save-way = <1>;
+                reg = <0x4a00251c 0x4>,    /* CTRL_MAC_ID1_LO */
+                      <0x4a002520 0x4>;    /* CTRL_MAC_ID1_HI */
+                local-mac-address = [ 00 40 47 E0 A8 33 ];
+
+                phy-handle = <&phy2>;      /* port2 use phy2 */
+                phy2: ethernet-phy@1       /* phy of port2 */
+                    {
+                    #address-cells = <1>;
+                    #size-cells    = <0>;
+                    compatible     = "micrel,phy";
+                    reg            = <1>;  /* phy address : 1 */
+                    rxc-skew-ps    = <900>;/* clock pad skew */
+                    txc-skew-ps    = <900>;/* clock pad skew */
+                    txen-skew-ps   = <420>;
+                    rxdv-skew-ps   = <420>;
+                    rxd0-skew-ps   = <420>;
+                    rxd1-skew-ps   = <420>;
+                    rxd2-skew-ps   = <420>;
+                    rxd3-skew-ps   = <420>;
+                    txd0-skew-ps   = <420>;
+                    txd1-skew-ps   = <420>;
+                    txd2-skew-ps   = <420>;
+                    txd3-skew-ps   = <420>;
+                    };
+                };
+            };
+
+        usb3phy1: usb3phy1@4a084400 
+            {
+            compatible   = "ti,am572x-usb3-phy";
+            platform     = "ti-sitara";
+            reg          = <0x4a084c00 0x40>,
+                           <0x4a002370 0x04>,
+                           <0x4a080000 0x20>;
+            phy_type     = "utmi";
+            clocks       = <&usb_phy3_always_on_clk32k>,
+                           <&sys_clkin1>, <&ocp2scp1_mod>,
+                           <&usb_otg_ss1_refclk960m>;			
+            clock-names  = "usb_phy3_always_on_clk32k",
+                           "sys_clkin1","ocp2scp1_mod",
+                           "usb_otg_ss1_refclk960m";			
+            };	
+
+        usb0phy0: usb0phy0@4a084000
+            {
+            compatible = "ti,am572x-usb2-phy";
+            platform   = "ti-sitara";
+            reg        = <0x4a084000 0x100>,
+                         <0x4a002300 0x04>;
+            phy_type   = "utmi";
+            clocks       = <&usb_phy1_always_on_clk32k>,
+                           <&usb_otg_ss1_refclk960m>;			
+            clock-names  = "usb_phy1_always_on_clk32k",
+                           "usb_otg_ss1_refclk960m";			
+			
+            };
+
+        usb1phy: usb1phy@4a085000
+            {
+            compatible = "ti,am572x-usb2-phy2";
+            platform   = "ti-sitara";
+            reg        = <0x4a085000 0x100>,
+                         <0x4a002e74 0x04>;
+            phy_type   = "utmi";
+            clocks     = <&usb_phy2_always_on_clk32k>,
+                         <&usb_otg_ss2_refclk960m>;
+            clock-names= "usb_phy2_always_on_clk32k",
+                         "usb_otg_ss2_refclk960m";
+            };
+
+        usb0: usb0@48890000
+            {
+            compatible = "ti,am572x-usb";
+            reg        = <0x48890000 0x17000>,
+                         <0x48880000 0x100>;
+            interrupts = <108 0 4>;
+            dr_mode    = "host";
+            usbphy = <&usb0phy0>;
+            pinmux-0   = <&usb1_pads>;
+            clocks     = <&usb_phy1_always_on_clk32k>,
+                         <&usb_otg_ss1_refclk960m>,
+                         <&usb_phy3_always_on_clk32k>,
+                         <&sys_clkin1>,
+                         <&sys_clkin2>;
+            clock-names= "usb_phy1_always_on_clk32k",
+                         "usb_otg_ss1_refclk960m", 
+                         "usb_phy3_always_on_clk32k",
+                         "sys_clkin1",
+                         "sys_clkin2";
+            };
+
+        usb1: usb1@488d0000
+            {
+            compatible = "ti,am572x-usb";
+            reg        = <0x488d0000 0x17000>,
+                         <0x488c0000 0x100>;
+            interrupts = <110 0 4>;
+            dr_mode    = "host";
+            usbphy = <&usb1phy>;
+            pinmux-0   = <&usb2_pads>;
+            clocks     = <&usb_phy2_always_on_clk32k>,
+                         <&usb_otg_ss2_refclk960m>,
+                         <&l3init_60m_fclk>,
+                         <&l3_iclk_div>,
+                         <&usb2_mod>,
+                         <&usb_otg_clkin_ck>,
+                         <&sys_clkin1>,
+                         <&sys_clkin2>;
+            clock-names= "usb_phy2_always_on_clk32k",
+                         "usb_otg_ss2_refclk960m", 
+                         "l3init_60m_fclk",
+                         "l3_iclk_div",
+                         "usb2_mod",
+                         "usb_otg_clkin_ck",
+                         "sys_clkin1",
+                         "sys_clkin2";
+            };
+
+        sata: sata@04A140000
+            {
+            compatible = "ti,ahci";     
+            reg = <0x4A140000 0x10000>;
+            interrupts = <86 0 4>;
+            clocks     = <&sata_ref_clk>,
+                         <&l3_iclk_div>,
+                         <&func_48m_fclk>,
+                         <&sata_mod>;
+            clock-names= "sata_ref_clk",
+                         "l3_iclk_div", 
+                         "func_48m_fclk",
+                         "sata_mod";
+            /*
+             *   Sometime there are more than one SATA controllers, such as
+             *   sata controller on the chip, PCI-sata controller.. etc.
+             *   If you want to disable that not used, 
+             *   just set the disable-controller as the following:
+             *   
+             *   for example :  disable-controller = "1,2,3";
+             *
+             *   1 - PCI-AHCI,
+             *   2 - FDT-AHCI,         for on-chip AHCI
+             *   3 - SATA_CTRL_SI31xx, for Sillicon Imagic
+             *   4 - SATA_CTRL_FSL,    for FreeScale
+             *   5 - PCI-PIIX,         (IDE ctroller)
+             *             
+             */ 
+             disable-controller = ""; 
+            };
+	    
+        mailbox1: mailbox@4a0f4000
+            {
+            compatible = "ti,mailbox";
+            reg = <0x4a0f4000 0x200>;
+            interrupts = <58 0 4>;
+            };
+
+        cccon:cccon
+            {
+            compatible = "wr,cccontrol";
+            pinmux-0   = <&ccio_pads>;
+            sensor-in  = <&gpio2 19>;
+            led-red    = <&gpio2 21>;
+            led-green  = <&gpio2 23>;
+            };
+
+        };/* end of soc */
+    };/* end of root */

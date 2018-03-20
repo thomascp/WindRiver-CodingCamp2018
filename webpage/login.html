@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<html xmlns="http://www.w3.org/1999/xhtml">  
+<head>  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<title>log in</title> 
+
+<style type="text/css">
+<!--
+body {
+background-image: url(images/cover.jpg);
+background-repeat: no-repeat;
+background-size:1440px 600px;
+background-position:center center;
+}
+-->
+</style>
+ 
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>  
+<script type="text/javascript" src="js/base64.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script> 
+
+<body background-image>  
+<script type="text/javascript"> 
+
+var client;
+var username;
+var password;
+
+function wsws()
+{
+    client = new Paho.MQTT.Client('api.devicecloud.windriver.com', 443, '/mqtt-ssl', 'Kongfu');
+
+    client.onConnectionLost = onConnectionLost;
+    client.onMessageArrived = onMessageArrived;
+    username = $.trim($("#username").attr("value"));
+    password = $.trim($("#password").attr("value"));
+    client.connect({
+    userName : username,
+    password : password,
+    useSSL: true,
+    mqttVersion : 3,
+    onSuccess : onConnect,
+    onFailure : onFailure
+    });
+}
+
+function onConnect() {
+    console.log('Connected.');
+    window.location.href="index.html?"+"username="+username+"&password="+password;
+}
+
+function onFailure(responseObject) {
+    console.log('Failed to connect: ' + responseObject.errorMessage);
+    
+    var element=document.getElementById("Info");
+    element.innerHTML="Something wrong, input again!";
+}
+
+function onConnectionLost(responseObject) {
+    console.log('Connection lost: ' + responseObject.errorMessage);
+}
+
+function onMessageArrived(message) {
+    console.log(message.destinationName + ': ' + message.payloadString);
+}
+
+</script>  
+</head>  
+<body>  
+<div class="container">
+ 		<div class="login" style='height:105px;line-height:105px;text-align:center'>
+   		<h1>Kongfu Panda Security</h1>
+        <p><input type="username" name="username" id="username" value="" placeholder="Username"></p>
+        <p><input type="password" name="password" id="password" value="" placeholder="Password"></p>
+        <p class="submit">
+        <button onclick="wsws()">Login</button>
+        </p>
+        <p id="Info">All rights reserved by @Chengdu Kongfu Panda Team</p>
+        </div>
+	</div>
+</body>  
+</html> 

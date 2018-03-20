@@ -1,0 +1,57 @@
+
+Kongfu Panda Security System
+
+This project is a security system.
+
+It contains several intereting technique components.
+1. face_recognition
+   The world's simplest facial recognition api for Python and
+   the command line.
+   It works based on dlib which is a modern C++ toolkit containing
+   machine learning algorithms and tools for creating complex
+   software in C++ to solve real world problems.
+2. UVC Camera
+   UVC stands for USB Video Class.
+   The USB Device Class Definition for Video Devices, or USB Video
+   Class, defines video streaming functionality on the Universal
+   Serial Bus. Much like nearly all mass storage devices (USB flash
+   disks, external SATA disk enclosures, ...) can be managed by a
+   single driver because they conform to the USB Mass Storage
+   specification, UVC compliant peripherals only need a generic driver.
+3. Human Detection Sensor
+   This is a sensor which can detect human and give a trigger signal
+   if there is a person.
+4. Helix Device Cloud
+   Wind River® Helix™ Device Cloud delivers secure, enterprise-grade
+   device lifecycle management so you can easily design your Internet
+   of Things (IoT) solutions with performance that scales to meet your
+   deployment needs.
+5. Web Pages
+   This include lighttpd, websocket and HTML/JS/CSS.
+   
+This system uses camera to capture images, sends them to
+face_recognition to compare to the authentication database, if successes,
+the log with contents of person and time will be send to HDC server, if fails, the
+picture of unknown person will be send to the HDC server and also an alert email
+will be sent to administrator to remind him whether to call the police.
+
+How to build and run the system:
+
+NOTICE: This is only a rough guide, please fetch more informations this guide mentioned.
+
+1.  Build wrlinux and install it to Intel X64 board
+    See Wind River Linux part of WindRiver Knowledge Library.
+2.  Install machine learning libary (dlib)
+    Download the dlib source , build and install it.
+3.  Install Python
+    You may use the python in the wrlinux or rebuild yourself.
+4.  Install face_recognition component and corresponded components.
+5.  Make the uvc binary, and copy it to device_cloud directory.
+    Buy a camera which is supportted by the UVC and plug it into the computer.
+6.  Reconfigure the helix_cloud
+    See HDC part of WindRiver Knowledge Library.
+7.  Get the device_id and modify the corresponding parts of webapp.
+8.  Add ti572x codes to vxWorks7 related BSP, build and load to board.
+9.  Install serial component and corresponded components
+a.  Run "python Kongfu.py" to run the application.
+    
