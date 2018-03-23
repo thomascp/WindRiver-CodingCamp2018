@@ -1,3 +1,3 @@
 # kongfu_panda
 
-![opps](kongfu_panda/PPT/1.jpg)
+![opps](https://github.com/wind-river-codecamp-2018/kongfu_panda/blob/master/PPT/1.jpg)
